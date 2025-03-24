@@ -15,19 +15,22 @@ class FileProcessor:
     def process_pdf(file_path):
         with pdfplumber.open(file_path) as pdf:
             text = "".join(page.extract_text() for page in pdf.pages if page.extract_text())
-        return Document(content=text, meta={"source": "pdf"})
+        file_name = os.path.basename(file_path)
+        return Document(content=text, meta={"source": file_name})
 
     @staticmethod
     def process_docx(file_path):
         doc = docx.Document(file_path)
         text = " ".join([para.text for para in doc.paragraphs if para.text])
-        return Document(content=text, meta={"source": "docx"})
+        file_name = os.path.basename(file_path)
+        return Document(content=text, meta={"source": file_name})
 
     @staticmethod
     def process_csv(file_path):
         df = pd.read_csv(file_path)
         text = " ".join(df.astype(str).agg(" ".join, axis=1))
-        return Document(content=text, meta={"source": "csv"})
+        file_name = os.path.basename(file_path)
+        return Document(content=text, meta={"source": file_name})
 
     @staticmethod
     def ocr_image(image_path):
@@ -77,11 +80,12 @@ class FileProcessor:
 
     @staticmethod
     def process_media(file_path):
+        file_name = os.path.basename(file_path)
         if file_path.lower().endswith((".jpg", ".png", ".jpeg")):
             ocr_text = FileProcessor.ocr_image(file_path)
             caption = FileProcessor.caption_image(file_path)
             text = f"OCR: {ocr_text}\nCaption: {caption}"
-            return Document(content=text, meta={"source": "image"})
+            return Document(content=text, meta={"source": file_name})
         
         elif file_path.lower().endswith((".mp4", ".avi", ".mov")):
             frames = FileProcessor.extract_frames(file_path)
@@ -94,8 +98,7 @@ class FileProcessor:
                 texts.append(f"Frame {i+1} (at {i*5}s): OCR: {ocr_text}\nCaption: {caption}")
                 os.remove(frame_path)
             text = "\n".join(texts)
-            return Document(content=text, meta={"source": "video"})
-        
+            return Document(content=text, meta={"source": file_name})
         else:
             raise ValueError(f"Unsupported media type: {file_path}")
 

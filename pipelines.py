@@ -4,6 +4,11 @@ from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
 from haystack.components.embedders import SentenceTransformersDocumentEmbedder, SentenceTransformersTextEmbedder
 from haystack.components.writers import DocumentWriter
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class RagPipeline:
     def __init__(self):
@@ -25,8 +30,17 @@ class RagPipeline:
     
     def index_documents(self, documents):
         if not documents:
+            logger.warning("No documents provided to index")
             return
-        self.indexing_pipeline.run({"doc_embedder": {"documents": documents}})
+        logger.info(f"Indexing {len(documents)} documents: {[doc.meta['source'] for doc in documents]}")
+        result = self.indexing_pipeline.run({"doc_embedder": {"documents": documents}})
+        logger.info(f"Indexed {len(documents)} documents in ChromaDB")
 
     def query(self, query_text, top_k=3):
-        return self.query_pipeline.run({"text_embedder": {"text": query_text}, "retriever": {"top_k": top_k}})
+        logger.info(f"Querying with text: {query_text}, top_k={top_k}")
+        # Log all documents in ChromaDB before querying
+        all_docs = self.document_store.filter_documents()
+        logger.info(f"All documents in ChromaDB: {[doc.meta['source'] for doc in all_docs]}")
+        result = self.query_pipeline.run({"text_embedder": {"text": query_text}, "retriever": {"top_k": top_k}})
+        logger.info(f"Retrieved {len(result['retriever']['documents'])} documents")
+        return result
