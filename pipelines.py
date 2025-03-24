@@ -22,8 +22,10 @@ class RagPipeline:
         self.query_pipeline.add_component("text_embedder", self.text_embedder)
         self.query_pipeline.add_component("retriever", self.retriever)
         self.query_pipeline.connect("text_embedder.embedding", "retriever.query_embedding")
-
+    
     def index_documents(self, documents):
+        if not documents:
+            return
         self.indexing_pipeline.run({"doc_embedder": {"documents": documents}})
 
     def query(self, query_text, top_k=3):

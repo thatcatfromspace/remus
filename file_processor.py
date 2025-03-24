@@ -41,7 +41,7 @@ class FileProcessor:
     @staticmethod
     def caption_image(image_path):
         try:
-            processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+            processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base", use_fast=True)
             model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
             image = Image.open(image_path).convert("RGB")
             inputs = processor(images=image, return_tensors="pt")
@@ -64,7 +64,7 @@ class FileProcessor:
                 ret, frame = vid.read()
                 if not ret:
                     break
-                if count % (interval * fps) == 0:
+                if count % (interval * fps) == 0: # Extract a frame every interval seconds.
                     temp_file = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
                     cv2.imwrite(temp_file.name, frame)
                     frames.append(temp_file.name)
@@ -82,6 +82,7 @@ class FileProcessor:
             caption = FileProcessor.caption_image(file_path)
             text = f"OCR: {ocr_text}\nCaption: {caption}"
             return Document(content=text, meta={"source": "image"})
+        
         elif file_path.lower().endswith((".mp4", ".avi", ".mov")):
             frames = FileProcessor.extract_frames(file_path)
             if not frames:
@@ -94,6 +95,7 @@ class FileProcessor:
                 os.remove(frame_path)
             text = "\n".join(texts)
             return Document(content=text, meta={"source": "video"})
+        
         else:
             raise ValueError(f"Unsupported media type: {file_path}")
 
