@@ -1,6 +1,7 @@
 # main.py
 import time
 from multiprocessing import Pool
+import redis
 from file_processor import FileProcessor
 from pipelines import RagPipeline
 from summarizer import Summarizer
@@ -13,6 +14,7 @@ def process_file_wrapper(file):
 class Chatbot:
     def __init__(self):
         start_time = time.time()
+        self.redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
         self.processor = FileProcessor()
         self.pipeline = RagPipeline()
         self.summarizer = Summarizer()
@@ -36,7 +38,18 @@ class Chatbot:
         self.pipeline.index_documents(documents)
         print(f"Indexing time: {time.time() - start_time:.2f}s")
 
-    def query(self, query_text, source_filter=[], use_web_search=False):
+    def query(self, query_text, source_filter=[], use_web_search=False, user="default"):
+        # Cache key: (user, file, prompt)
+        file_key = source_filter[0] if source_filter else "all_files"
+        cache_key = f"{user}:{file_key}:{query_text}:{use_web_search}"
+        
+        # Check Redis cache
+        cached_response = self.redis_client.get(cache_key)
+        if cached_response:
+            print(f"Cache hit: {cache_key}")
+            return cached_response
+
+        start_time = time.time()
         results = self.pipeline.query(query_text)
         docs = results["retriever"]["documents"]
         
@@ -56,12 +69,7 @@ class Chatbot:
             prompt = f"Summarize {source_filter[0]} content:"
         
         sources = list(set(doc.meta["source"] for doc in docs))
-        # if use_web_search:
-        #     web_results = self.web_searcher.search(query_text)
-        #     if web_results:
-        #         context += " | Web Results: " + " | ".join(web_results[:2])  # Limit to 2 for brevity
-        #         sources.append("web")
-
+        # Web search with ThreadPoolExecutor
         if use_web_search:
             with ThreadPoolExecutor(max_workers=2) as executor:
                 web_future = executor.submit(self.web_searcher.search, query_text)
@@ -70,7 +78,10 @@ class Chatbot:
                 context += " | Web Results: " + " | ".join(web_results[:2])
                 sources.append("web")
         
-        return self.summarizer.generate_summary(context, sources, prompt)
+        response = self.summarizer.generate_summary(context, sources, prompt)
+        self.redis_client.setex(cache_key, 3600, response)       # Cache result (expire in 1 hour)
+        print(f"Query time: {time.time() - start_time:.2f}s")
+        return response
 
     def test_queries(self):
         queries = [

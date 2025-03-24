@@ -5,4 +5,5 @@ __pycache__/
 debug.py
 
 chroma_data/
+redis_data/
 .env
