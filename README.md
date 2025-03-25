@@ -67,30 +67,21 @@ Installation
     
 
 ### Steps
-
-1.  bashCollapseWrapCopygit clone https://github.com/NoorFathima14/buckman-chatbot.git cd buckman-chatbot
     
-2.  **Set Up Environment Variables**:
+1.  **Set Up Environment Variables**:
     
     *   bashCollapseWrapCopycp .env.example .env
         
     *   Update .env with your API keys and configuration (e.g., Google Custom Search API key, Redis settings).
         
-3.  bashCollapseWrapCopycd backend pip install -r requirements.txt
+2.  bash cd backend pip install -r requirements.txt
     
-4.  bashCollapseWrapCopycd ../frontend npm install
     
-5.  **Run with Docker**:
+3.  **Run with Docker**:
     
     *   Ensure Docker is running.
         
-    *   bashCollapseWrapCopycd .. docker-compose up --build
-        
     *   This will start the backend (FastAPI), frontend (React), Redis, and Ollama containers.
-        
-6.  **Access the Application**:
-    
-    *   Open your browser and navigate to http://localhost:3000 to access the web interface.
         
 
 Usage
@@ -121,15 +112,6 @@ Usage
 
 Workflow
 --------
-
-The following diagram illustrates the end-to-end workflow of Buckman Chatbot:
-
-mermaid
-
-CollapseWrapCopy
-
-flowchart TD A\[Start: User Accesses Web Interface\] --> B\[File Upload Handling: Process Files with FastAPI & Tesseract OCR\] B --> C\[Parallelized Operations\] C -->|Branch 1| D\[File Processing: Tokenize, Clean Data\] C -->|Branch 2| E\[Web Search Validation: Google Custom Search API\] D --> F\[Merge Parallel Outputs\] E --> F F --> G\[Sequential Embedding: Generate Embeddings with Sentence Transformers, Store in ChromaDB\] G --> H\[RAG Pipeline: Retrieve Relevant Content with Haystack & ChromaDB\] H --> I\[Response Generation: Mistral-7B via Ollama\] I --> J\[Response Caching: Cache in Redis\] J --> K\[Response Formatting: Markdown with Syntax Highlighting\] K --> L\[Deliver Response to User: Display on React Frontend\] L --> M\[End\]
-
 ### Workflow Steps
 
 1.  **User Interaction**: Upload files and submit a query via the React frontend.
