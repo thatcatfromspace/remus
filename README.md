@@ -1,6 +1,8 @@
 Remus
 ===============
 
+This project was developed in collaboration with [Noor Fathima](https://github.com/NoorFathima14).
+
 A multimodal chatbot designed to simplify file querying, processing, and intelligent response generation. Buckman Chatbot supports diverse file types (PDF, CSV, DOCX, PNG, JPEG, MP4), processes text, images, and videos, and enhances responses with web search validation and caching for performance. Built with open-source technologies, it’s a user-friendly solution for students, researchers, educators, and professionals.
 
 Overview
