@@ -72,11 +72,11 @@ Installation
     
 1.  **Set Up Environment Variables**:
     
-    *   bashCollapseWrapCopycp .env.example .env
+    *   `cp .env.example .env`
         
     *   Update .env with your API keys and configuration (e.g., Google Custom Search API key, Redis settings).
         
-2.  bash cd backend pip install -r requirements.txt
+2.  `cd backend pip install -r requirements.txt`
     
     
 3.  **Run with Docker**:
