@@ -1,14 +1,14 @@
 Remus
 ===============
 
-This project was developed in collaboration with [Noor Fathima](https://github.com/NoorFathima14).
+This project was developed in collaboration with [Noor Fathima](https://github.com/NoorFathima14). The project was worked on for a hackathon initially from a single computer, hence the fork.
 
-A multimodal chatbot designed to simplify file querying, processing, and intelligent response generation. Buckman Chatbot supports diverse file types (PDF, CSV, DOCX, PNG, JPEG, MP4), processes text, images, and videos, and enhances responses with web search validation and caching for performance. Built with open-source technologies, it’s a user-friendly solution for students, researchers, educators, and professionals.
+A multimodal chatbot designed to simplify file querying, processing, and intelligent response generation. Remus supports diverse file types (PDF, CSV, DOCX, PNG, JPEG, MP4), processes text, images, and videos, and enhances responses with web search validation and caching for performance. Built with open-source technologies, it’s a user-friendly solution for students, researchers, educators, and professionals.
 
 Overview
 --------
 
-Buckman Chatbot is a web-based application that allows users to upload, process, and query files in various formats, including PDFs, images, and videos. It leverages multimodal processing to handle text, images, and videos, and uses natural language querying to provide intelligent, Markdown-formatted responses with syntax highlighting. The chatbot validates responses using web search (Google Custom Search API) and caches them with Redis for faster retrieval of repeated queries. It’s designed for academic research, content analysis, lecture summarization, and more, targeting students, researchers, educators, and professionals.
+Remus is a web-based application that allows users to upload, process, and query files in various formats, including PDFs, images, and videos. It leverages multimodal processing to handle text, images, and videos, and uses natural language querying to provide intelligent, Markdown-formatted responses with syntax highlighting. The chatbot validates responses using web search (Google Custom Search API) and caches them with Redis for faster retrieval of repeated queries. It’s designed for academic research, content analysis, lecture summarization, and more, targeting students, researchers, educators, and professionals.
 
 Key Features
 ------------
@@ -136,11 +136,8 @@ Workflow
 Contact
 -------
 
-*   **Author**: Noor Fathima
+*   **Authors**: Noor Fathima | Dinesh Veluswmay
     
-*   **GitHub**: [NoorFathima14](https://github.com/NoorFathima14)
-    
+*   **GitHub**: [NoorFathima14](https://github.com/NoorFathima14) | [Dinesh Veluswamy](https://github.com/thatcatfromspace)
 
 For questions, suggestions, or collaboration, feel free to open an issue or reach out directly!
-
-This README provides a professional and detailed overview of your project, making it easy for others to understand, use, and contribute to Buckman Chatbot. Let me know if you’d like to adjust or add more sections!
