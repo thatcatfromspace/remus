@@ -1,17 +1,20 @@
 import time
 from multiprocessing import Pool
 from concurrent.futures import ThreadPoolExecutor
+import logging
+import os
+from typing import List, Dict
+import uvicorn
+
 import redis
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
 from file_processor import FileProcessor
 from pipelines import RagPipeline
 from summarizer import Summarizer
 from web_search import WebSearch
-import os
-from typing import List, Dict
-import logging
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -47,7 +50,7 @@ class QueryRequest(BaseModel):
     use_web_search: bool
     file_to_query: str
 
-def query(chatbot, query_text: str, use_web_search: bool, file_to_query: str = None) -> str:
+def query(chatbot, query_text: str, use_web_search: bool, file_to_query: str = "") -> str:
     logger.info(f"Received query: query_text='{query_text}', use_web_search={use_web_search}, file_to_query={file_to_query}")
     
     if not query_text.strip():
@@ -67,25 +70,32 @@ def query(chatbot, query_text: str, use_web_search: bool, file_to_query: str = N
         raise HTTPException(status_code=500, detail=f"Redis error: {str(e)}")
     
     start_time = time.time()
+    
     try:
         logger.info("Querying pipeline...")
         results = chatbot.pipeline.query(query_text)
         logger.info("Pipeline query successful")
         docs = results.get("retriever", {}).get("documents", [])
+        
         # Log the retrieved documents
         logger.info(f"Retrieved {len(docs)} documents: {[doc.meta['source'] for doc in docs]}")
+        
         if not docs:
             logger.warning("No documents retrieved from pipeline")
+    
     except Exception as e:
         logger.error(f"Pipeline query failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Pipeline query failed: {str(e)}")
     
+    # in case a specific file is not queried
     if not file_to_query or file_to_query == "all_files":
         try:
             logger.info("Querying all documents...")
             all_docs = chatbot.pipeline.query(query_text, top_k=10)["retriever"]["documents"]
             docs_by_source = {doc.meta["source"]: doc for doc in all_docs}
             docs = list(docs_by_source.values())
+            
+            # if user has no previously uploaded docs
             if not docs:
                 logger.warning("No documents available to summarize")
                 raise HTTPException(status_code=404, detail="No documents available to summarize")
@@ -96,12 +106,14 @@ def query(chatbot, query_text: str, use_web_search: bool, file_to_query: str = N
         except Exception as e:
             logger.error(f"Error processing all documents: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error processing all documents: {str(e)}")
+        
     else:
         # Filter by full file name (e.g., "synchronization_22pd26.pdf")
         docs = [doc for doc in docs if doc.meta["source"] == file_to_query]
         if not docs:
             logger.warning(f"No content found for file: {file_to_query}")
             raise HTTPException(status_code=404, detail=f"No content found for file: {file_to_query}")
+        
         context = " ".join([doc.content for doc in docs])
         context = context[:500] + "..." if len(context) > 500 else context
         prompt = f"Summarize {file_to_query} content:"
@@ -154,7 +166,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global chatbot instance (will be initialized in main)
+# Global chatbot instance 
 chatbot = None
 
 @app.get("/files", response_model=Dict[str, List[str]])
@@ -176,7 +188,7 @@ async def post_query(request: QueryRequest):
 
 class UploadRequest(BaseModel):
     file_name: str
-    file_content: str  # Base64-encoded file content
+    file_content: str  # base64 encoded file content
 
 @app.post("/upload", response_model=Dict[str, str])
 async def upload_file(file: UploadFile = File(...)):
@@ -208,7 +220,6 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Failed to process file: {str(e)}")
     
 if __name__ == "__main__":
-    # Process files using multiprocessing
     files = [
             "data/sample.pdf",
             "data/sample.docx",
@@ -220,13 +231,10 @@ if __name__ == "__main__":
     print(f"Setup time: {time.time() - start_time:.2f}s")
 
     start_time = time.time()
-    with Pool(processes=4) as pool:  # 4 performance cores on M1
+    with Pool(processes=4) as pool:  
         documents = pool.map(process_file_wrapper, files)
     print(f"Parallel file processing time: {time.time() - start_time:.2f}s")
 
-    # Initialize the chatbot with pre-processed documents
     chatbot = Chatbot(documents)
 
-    # Start the FastAPI app
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

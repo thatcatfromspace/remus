@@ -1,10 +1,11 @@
 # pipelines.py
+import logging
+
 from haystack import Pipeline
 from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
 from haystack.components.embedders import SentenceTransformersDocumentEmbedder, SentenceTransformersTextEmbedder
 from haystack.components.writers import DocumentWriter
-import logging
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
