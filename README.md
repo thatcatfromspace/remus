@@ -3,7 +3,7 @@ Remus
 
 This project was developed in collaboration with [Noor Fathima](https://github.com/NoorFathima14). The project was worked on for a hackathon initially from a single computer, hence the fork.
 
-A multimodal chatbot designed to simplify file querying, processing, and intelligent response generation. Remus supports diverse file types (PDF, CSV, DOCX, PNG, JPEG, MP4), processes text, images, and videos, and enhances responses with web search validation and caching for performance. Built with open-source technologies, it’s a user-friendly solution for students, researchers, educators, and professionals.
+A multimodal chatbot designed to simplify file querying, processing, and intelligent response generation. Remus supports diverse file types (PDF, CSV, DOCX, PNG, JPEG, MP4), processes text, images, and videos, and enhances responses with web search validation and caching for performance. 
 
 Overview
 --------
@@ -39,15 +39,11 @@ Technologies Used
 
 *   **Frontend**: React, Vite, React-Markdown, React-Syntax-Highlighter; Nginx for serving.
     
-*   **Backend**: FastAPI, Tesseract OCR; Uvicorn for high-performance API serving.
+*   **Backend**: FastAPI, Tesseract OCR; Uvicorn 
     
-*   **Database & Caching**: ChromaDB for vector storage; Redis container for caching.
+*   **Database & Caching**: ChromaDB for vector storage; Redis container for caching
     
-*   **Containerization**: Docker and Dockerfile for scalability and consistency.
-    
-*   **NLP**: Sentence Transformers for embeddings and text processing.
-    
-*   **RAG Pipeline**: Haystack for retrieval-augmented generation, enabling efficient document querying.
+*   **Containerization**: Docker/Dockerfile
     
 *   **Web Search**: Google Custom Search API for response validation and enhancement.
     
@@ -82,57 +78,14 @@ Installation
 3.  **Run with Docker**:
     
     *   Ensure Docker is running.
+
+    ```sh
+    docker-compose up -d
+    ```
         
     *   This will start the backend (FastAPI), frontend (React), Redis, and Ollama containers.
         
-
-Usage
------
-
-1.  **Upload Files**:
     
-    *   Use the web interface to upload files (PDF, CSV, DOCX, PNG, JPEG, MP4).
-        
-    *   Supported file types are processed automatically (e.g., text extraction from PDFs, transcripts from videos).
-        
-2.  **Query the Chatbot**:
-    
-    *   Enter a natural language query, such as “What are the key findings in the file, and are they consistent with recent studies?”
-        
-    *   The chatbot processes the query, retrieves relevant content, validates with web search, and generates a response.
-        
-3.  **View Responses**:
-    
-    *   Responses are displayed in Markdown format with syntax-highlighted code blocks.
-        
-    *   Repeated queries are served instantly from the Redis cache.
-        
-4.  **Manage Files**:
-    
-    *   List and delete uploaded files as needed through the interface.
-        
-
-Workflow
---------
-### Workflow Steps
-
-1.  **User Interaction**: Upload files and submit a query via the React frontend.
-    
-2.  **File Processing**: Extract text/audio using FastAPI and Tesseract OCR.
-    
-3.  **Parallel Operations**: Process files and perform web search in parallel.
-    
-4.  **Sequential Embedding**: Generate embeddings with Sentence Transformers, stored in ChromaDB.
-    
-5.  **RAG Pipeline**: Retrieve relevant content using Haystack and ChromaDB.
-    
-6.  **Response Generation**: Generate a response with Mistral-7B via Ollama.
-    
-7.  **Caching**: Cache the response in Redis.
-    
-8.  **Response Delivery**: Display the Markdown-formatted response on the frontend.
-    
-
 Contact
 -------
 
